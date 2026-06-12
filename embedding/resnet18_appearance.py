@@ -5,7 +5,7 @@ import torch
 import torchvision.transforms as T
 from torchvision.models import resnet18, ResNet18_Weights
 
-from faceqsort_mamba.utils.device_utils import resolve_device
+from fq_utils.device_utils import resolve_device
 
 class ResNet18Appearance:
     def __init__(self, device=None, weights_path: Optional[str] = None):

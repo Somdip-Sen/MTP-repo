@@ -35,7 +35,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from faceqsort_mamba.motion.mamba_block import BiMambaBlock
+from motion.mamba_block import BiMambaBlock
 
 
 # ---------------------------------------------------------------------------

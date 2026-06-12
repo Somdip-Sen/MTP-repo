@@ -20,8 +20,8 @@ from typing import List, Tuple, Optional, Dict
 import numpy as np
 
 from scipy.optimize import linear_sum_assignment
-from faceqsort_mamba.utils.device_utils import get_best_device, resolve_device
-from faceqsort_mamba.motion.mamba_motion_predictor import MambaMotionPredictor, MambaTrackState
+from fq_utils.device_utils import get_best_device, resolve_device
+from motion.mamba_motion_predictor import MambaMotionPredictor, MambaTrackState
 
 
 # -----------------------------

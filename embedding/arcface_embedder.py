@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Sequence
 import cv2
 import numpy as np
 
-from faceqsort_mamba.utils.device_utils import insightface_ctx_id, insightface_providers, resolve_device
+from fq_utils.device_utils import insightface_ctx_id, insightface_providers, resolve_device
 
 
 def _l2norm(x: np.ndarray, eps: float = 1e-12) -> np.ndarray:

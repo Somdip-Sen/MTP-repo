@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, List, Tuple, Union
 import cv2
 import numpy as np
 
-from faceqsort_mamba.utils.device_utils import get_best_device, resolve_device
+from fq_utils.device_utils import get_best_device, resolve_device
 
 if TYPE_CHECKING:
-    from faceqsort_mamba.embedding.resnet18_appearance import ResNet18Appearance
-    from faceqsort_mamba.embedding.arcface_embedder import ArcFaceEmbedder
-    from faceqsort_mamba.detection.detector_retinaface import FaceDetection
+    from embedding.resnet18_appearance import ResNet18Appearance
+    from embedding.arcface_embedder import ArcFaceEmbedder
+    from detection.detector_retinaface import FaceDetection
 
 
 def parse_source(src: str) -> Union[int, str]:
@@ -105,7 +105,7 @@ def build_tracker_detections(
         min_box_size: int,
         frame_idx: int = 0,
 ) -> Tuple[List["Detection"], int]:
-    from faceqsort_mamba.tracking.faceqsort import Detection
+    from tracking.faceqsort import Detection
 
     out: List[Detection] = []
     feature_failures = 0
@@ -154,7 +154,9 @@ def main() -> None:
     parser.add_argument("--output-video", type=str, default=None, help="Output tracked video path (.mp4).")
     parser.add_argument("--output-mot", type=str, default=None, help="Output MOT text path.")
     parser.add_argument("--output-jsonl", type=str, default=None, help="Output JSONL path.")
-    parser.add_argument("--no-video", action="store_true", help="Disable writing output video.")
+    parser.add_argument("--video", action="store_true",
+                        help="Also write the tracked visualization video. Off by default; "
+                             "the MOT text output is always written.")
     parser.add_argument("--show", action="store_true", help="Show live preview window.")
     parser.add_argument("--confirmed-only", action="store_true", help="Render/export only confirmed tracks.")
     parser.add_argument("--log-every", type=int, default=0,
@@ -323,13 +325,13 @@ def main() -> None:
     output_jsonl = Path(args.output_jsonl).expanduser().resolve() if args.output_jsonl else output_dir / "tracks.jsonl"
     output_mot.parent.mkdir(parents=True, exist_ok=True)
     output_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    if not args.no_video:
+    if args.video:
         output_video.parent.mkdir(parents=True, exist_ok=True)
 
-    from faceqsort_mamba.embedding.resnet18_appearance import ResNet18Appearance
-    from faceqsort_mamba.embedding.arcface_embedder import ArcFaceEmbedder
-    from faceqsort_mamba.detection.detector_retinaface import RetinaFaceMobileNet025Detector
-    from faceqsort_mamba.tracking.faceqsort import FaceQSORTTracker
+    from embedding.resnet18_appearance import ResNet18Appearance
+    from embedding.arcface_embedder import ArcFaceEmbedder
+    from detection.detector_retinaface import RetinaFaceMobileNet025Detector
+    from tracking.faceqsort import FaceQSORTTracker
 
     source = parse_source(args.input)
     cap = cv2.VideoCapture(source)
@@ -534,20 +536,21 @@ def main() -> None:
             }
             jsonl_fh.write(json.dumps(frame_log) + "\n")
 
-            vis = draw_tracks(frame, tracks, confirmed_only=args.confirmed_only, max_tsu=_max_tsu)
-            hud_s = ui_scale(vis.shape[0])
-            cv2.putText(
-                vis,
-                f"frame={frame_idx} det={len(raw_dets)} used={len(tracker_dets)} track={len(tracks_export)}",
-                (max(2, int(round(10 * hud_s))), max(10, int(round(24 * hud_s)))),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.65 * hud_s,
-                (50, 220, 50),
-                max(1, int(round(2 * hud_s))),
-                cv2.LINE_AA,
-            )
+            if args.video or args.show:
+                vis = draw_tracks(frame, tracks, confirmed_only=args.confirmed_only, max_tsu=_max_tsu)
+                hud_s = ui_scale(vis.shape[0])
+                cv2.putText(
+                    vis,
+                    f"frame={frame_idx} det={len(raw_dets)} used={len(tracker_dets)} track={len(tracks_export)}",
+                    (max(2, int(round(10 * hud_s))), max(10, int(round(24 * hud_s)))),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.65 * hud_s,
+                    (50, 220, 50),
+                    max(1, int(round(2 * hud_s))),
+                    cv2.LINE_AA,
+                )
 
-            if not args.no_video and writer is None:
+            if args.video and writer is None:
                 h, w = vis.shape[:2]
                 # Try codec fallback: mp4v -> MJPG -> H264 -> DIVX
                 for codec_str in ["mp4v", "MJPG", "H264", "DIVX"]:
@@ -593,7 +596,7 @@ def main() -> None:
         f"[FaceQSORT] Finished: frames={frame_idx}, tracks_written={total_tracks_written}, "
         f"fps={frame_idx / dt:.2f}"
     )
-    if not args.no_video:
+    if args.video:
         print(f"[FaceQSORT] Video: {output_video}")
     print(f"[FaceQSORT] MOT:   {output_mot}")
     print(f"[FaceQSORT] JSONL: {output_jsonl}")

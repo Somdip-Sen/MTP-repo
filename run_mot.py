@@ -28,9 +28,9 @@ from typing import Dict, List, Optional, Tuple
 
 import cv2
 
-from faceqsort_mamba.data.chokepoint_to_mot import eye_bbox
-from faceqsort_mamba.utils.device_utils import get_best_device, resolve_device
-from faceqsort_mamba.run_faceqsort import build_tracker_detections
+from fq_data.chokepoint_to_mot import eye_bbox
+from fq_utils.device_utils import get_best_device, resolve_device
+from run_faceqsort import build_tracker_detections
 
 
 def read_seqinfo(seq_dir: Path) -> dict:
@@ -247,10 +247,10 @@ class MotResultWriter:
 
 
 def build_detector_embedders_tracker(args, device, img_size):
-    from faceqsort_mamba.embedding.resnet18_appearance import ResNet18Appearance
-    from faceqsort_mamba.embedding.arcface_embedder import ArcFaceEmbedder
-    from faceqsort_mamba.detection.detector_retinaface import RetinaFaceMobileNet025Detector
-    from faceqsort_mamba.tracking.faceqsort import FaceQSORTTracker
+    from embedding.resnet18_appearance import ResNet18Appearance
+    from embedding.arcface_embedder import ArcFaceEmbedder
+    from detection.detector_retinaface import RetinaFaceMobileNet025Detector
+    from tracking.faceqsort import FaceQSORTTracker
 
     detector = RetinaFaceMobileNet025Detector(
         device=device,

@@ -11,16 +11,19 @@ PACKAGE LAYOUT (by pipeline component)
     motion/      mamba_block.py               pure-PyTorch (Bi)Mamba S6 block
                  mamba_motion_predictor.py    Mamba Motion Predictor (Kalman drop-in)
     tracking/    faceqsort.py                 FaceQSORT association + global-ID layer
-    data/        chokepoint_to_mot.py         ChokePoint eye-coords -> MOT GT converter
-    utils/       device_utils.py              device / provider resolution
+    fq_data/     chokepoint_to_mot.py         ChokePoint eye-coords -> MOT GT converter
+    fq_utils/    device_utils.py              device / provider resolution
+                 (fq_ prefix avoids clashing with the RetinaFace repo's own
+                  data/ and utils/ packages injected onto sys.path at runtime)
     run_faceqsort.py    single-video pipeline runner
     run_mot.py          MOTChallenge-format sequence runner + exporter
     eval_chokepoint.py  TrackEval scoring for ChokePoint
 
-RUNNING (from the directory that CONTAINS this package, as modules):
-    python -m faceqsort_mamba.run_mot      --help
-    python -m faceqsort_mamba.run_faceqsort --help
-    python -m faceqsort_mamba.eval_chokepoint --help
+RUNNING (from INSIDE this folder; imports are rooted at the folder itself):
+    python run_faceqsort.py   --help
+    python run_mot.py         --help
+    python eval_chokepoint.py --help
+    # equivalently: python -m run_faceqsort --help
 
 EXTERNAL DEPENDENCIES NOT INCLUDED (clone/obtain separately):
     - Pytorch_Retinaface  (detector backbone code; pass via --retinaface-repo;

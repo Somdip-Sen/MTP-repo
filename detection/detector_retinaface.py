@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from faceqsort_mamba.utils.device_utils import insightface_ctx_id, insightface_providers, resolve_device
+from fq_utils.device_utils import insightface_ctx_id, insightface_providers, resolve_device
 
 
 @dataclass
